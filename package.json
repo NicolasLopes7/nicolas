@@ -1,0 +1,46 @@
+{
+  "name": "nicolas",
+  "version": "1.0.4",
+  "description": "",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": "./dist/index.cjs",
+  "bin": {
+    "nicolas": "./dist/index.cjs"
+  },
+  "tsup": {
+    "clean": true,
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs"
+    ],
+    "minify": false,
+    "target": "esnext",
+    "outDir": "dist"
+  },
+  "scripts": {
+    "dev": "tsx ./src/index.ts",
+    "build": "tsup"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^20.11.6",
+    "prettier": "^3.2.4",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-isaacscript": "^2.6.7",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-config-prettier": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "6.0.0",
+    "@typescript-eslint/parser": "6.0.0",
+    "eslint": "^8.40.0",
+    "@types/eslint": "^8.37.0"
+  }
+}
