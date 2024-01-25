@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { argv, chdir } from "node:process";
+import { chdir } from "node:process";
 import path from "path";
+import chalk from "chalk";
 
 import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
+import { runCli } from "./cli";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -13,40 +15,98 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
     unknown
   >;
 
-const main = async () => {
-  const args = argv.slice(2);
-  if (args.length < 1) {
-    throw new Error("Usage: npx nicolas <directory_name> flags");
+type StepOptions = {
+  description: string;
+} & (
+  | {
+      exec: () => Promise<void>;
+    }
+  | {
+      command: string;
+    }
+);
+
+const nicolau = chalk.blue("[Nicolau]");
+
+const runStep = async (step: StepOptions) => {
+  console.log(`${nicolau} ${step.description}`);
+  if ("command" in step) {
+    const stdout = execSync(step.command);
+    process.stdout.write(stdout);
+  } else {
+    await step.exec();
   }
-  const [directoryName] = args;
-  const fullPath = path.join(process.cwd(), directoryName);
+
+  console.log(`✅ ${chalk.green("Done")}\n\n`);
+};
+
+const main = async () => {
+  const { name, withLint } = await runCli();
+  const fullPath = path.join(process.cwd(), name);
+
+  console.log(
+    `Creating project ${chalk.blue(name)} at ${chalk.blue("./" + name)}...`
+  );
 
   await mkdir(fullPath);
   chdir(fullPath);
 
-  execSync("git init");
-  execSync("pnpm init");
-  execSync(`pnpm i ${deps.join(" ")} -D`);
-  execSync("pnpm tsc --init");
-  await mkdir(path.join(fullPath, "src"));
-  await writeFile(path.join(fullPath, "src", "index.ts"), "");
+  await runStep({
+    command: "git init",
+    description: "Initializing git repository...",
+  });
 
-  const packageJson = await loadJSON(path.join(fullPath, "package.json"));
+  await runStep({
+    command: "pnpm init",
+    description: "Initializing pnpm...",
+  });
 
-  packageJson.scripts = {
-    dev: "tsx --watch src/index.ts",
-    build: "tsup",
-    start: "node dist/index.js",
-  };
+  await runStep({
+    command: `pnpm i ${deps.join(" ")} -D`,
+    description: "Installing dependencies...",
+  });
 
-  await writeFile(
-    path.join(fullPath, "package.json"),
-    JSON.stringify(packageJson, null, 2)
-  );
+  await runStep({
+    command: `pnpm tsc --init`,
+    description: "Initializing tsconfig...",
+  });
 
-  if (args.includes("--with-lint")) {
-    await addLint();
+  await runStep({
+    description: "Creating src/index.ts...",
+    exec: async () => {
+      await mkdir(path.join(fullPath, "src"));
+      await writeFile(path.join(fullPath, "src", "index.ts"), "");
+    },
+  });
+
+  await runStep({
+    description: "Creating package.json",
+    exec: async () => {
+      const packageJson = await loadJSON(path.join(fullPath, "package.json"));
+
+      packageJson.scripts = {
+        dev: "tsx --watch src/index.ts",
+        build: "tsup",
+        start: "node dist/index.js",
+      };
+
+      await writeFile(
+        path.join(fullPath, "package.json"),
+        JSON.stringify(packageJson, null, 2)
+      );
+    },
+  });
+
+  if (withLint) {
+    await runStep({
+      description: "Setting up linting...",
+      exec: addLint,
+    });
   }
+
+  console.log(
+    `${nicolau} Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
+  );
 };
 
 main().catch((err) => {
