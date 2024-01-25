@@ -6,6 +6,7 @@
     },
     "checkJs": true,
     "module": "ESNext",
+    "allowSyntheticDefaultImports": true,
   },
   "include": ["src"],
 }
