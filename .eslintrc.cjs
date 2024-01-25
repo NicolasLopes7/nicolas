@@ -3,6 +3,7 @@ const config = {
   root: true,
   parser: "@typescript-eslint/parser",
   plugins: ["isaacscript", "import"],
+  ignorePatterns: ["*.cjs", "*.mjs"],
   extends: [
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
@@ -14,12 +15,6 @@ const config = {
     tsconfigRootDir: __dirname,
     project: ["./tsconfig.json"],
   },
-  overrides: [
-    {
-      extends: ["plugin:@typescript-eslint/disable-type-checked"],
-      files: ["./**/*.*js"],
-    },
-  ],
   rules: {
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-unused-vars": [

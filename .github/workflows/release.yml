@@ -1,0 +1,42 @@
+name: Publish Package to npmjs
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.10.0"
+          registry-url: "https://registry.npmjs.org"
+      - run: pnpm i --frozen-lockfile
+      - name: Set git configuration
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Get next version"
+        id: version
+        run: |
+          DEFAULT_VERSION=1.0.0
+
+          LATEST_TAG=$(pnpm version | awk -F"[:,']" '/nicolas/ {print $3}' || echo $DEFAULT_VERSION)
+          echo "Current version ${LATEST_TAG}"
+
+          NEXT_VERSION=$(echo ${LATEST_TAG} | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          echo "Next version ${NEXT_VERSION}"
+
+          echo "value=${NEXT_VERSION}" >> $GITHUB_OUTPUT
+      - name: Update version
+        run: pnpm version ${{ steps.version.outputs.value }}
+      - run: pnpm build
+      - run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

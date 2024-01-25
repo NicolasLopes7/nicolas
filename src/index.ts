@@ -5,6 +5,7 @@ import { chdir } from "node:process";
 import path from "path";
 import chalk from "chalk";
 
+import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
 
@@ -99,6 +100,10 @@ const main = async () => {
   console.log(
     `${nicolau} Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
   );
+
+  if (args.includes("--with-lint")) {
+    await addLint();
+  }
 };
 
 main().catch((err) => {
