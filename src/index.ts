@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { exec } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chdir } from "node:process";
 import path from "path";
@@ -9,7 +8,7 @@ import ora from "ora";
 import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
-import { awaitExec } from "./helpers/awaitExec";
+import { asyncExec } from "./helpers/asyncExec";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -34,7 +33,7 @@ const runStep = async (step: StepOptions) => {
   const spinner = ora(step.description).start();
 
   if ("command" in step) {
-    await awaitExec(step.command);
+    await asyncExec(step.command);
   } else {
     await step.exec();
   }
