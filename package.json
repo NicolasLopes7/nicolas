@@ -1,6 +1,6 @@
 {
   "name": "nicolas",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "",
   "type": "module",
   "main": "./src/index.ts",
@@ -47,6 +47,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
-    "inquirer": "^9.2.12"
+    "inquirer": "^9.2.12",
+    "ora": "^8.0.1"
   }
 }

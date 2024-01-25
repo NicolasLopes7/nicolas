@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-import { execSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chdir } from "node:process";
 import path from "path";
 import chalk from "chalk";
+import ora from "ora";
 
 import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
+import { asyncExec } from "./helpers/asyncExec";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -29,15 +30,15 @@ type StepOptions = {
 const nicolau = chalk.blue("[Nicolau]");
 
 const runStep = async (step: StepOptions) => {
-  console.log(`${nicolau} ${step.description}`);
+  const spinner = ora(step.description).start();
+
   if ("command" in step) {
-    const stdout = execSync(step.command);
-    process.stdout.write(stdout);
+    await asyncExec(step.command);
   } else {
     await step.exec();
   }
 
-  console.log(`✅ ${chalk.green("Done")}\n\n`);
+  spinner.succeed();
 };
 
 const main = async () => {
@@ -105,7 +106,7 @@ const main = async () => {
   }
 
   console.log(
-    `${nicolau} Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
+    `\n🎉 Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
   );
 };
 
