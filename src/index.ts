@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { argv, chdir } from "node:process";
 import path from "path";
 
+import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
@@ -14,8 +15,8 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
 
 const main = async () => {
   const args = argv.slice(2);
-  if (args.length !== 1) {
-    throw new Error("Usage: npx nicolas <directory_name>");
+  if (args.length < 1) {
+    throw new Error("Usage: npx nicolas <directory_name> flags");
   }
   const [directoryName] = args;
   const fullPath = path.join(process.cwd(), directoryName);
@@ -42,6 +43,10 @@ const main = async () => {
     path.join(fullPath, "package.json"),
     JSON.stringify(packageJson, null, 2)
   );
+
+  if (args.includes("--with-lint")) {
+    await addLint();
+  }
 };
 
 main().catch((err) => {
