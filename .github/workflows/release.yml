@@ -16,6 +16,12 @@ jobs:
           node-version: "20.10.0"
           registry-url: "https://registry.npmjs.org"
       - run: pnpm i --frozen-lockfile
+      - name: Set git configuration
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: "Get next version"
         id: version
         run: |
