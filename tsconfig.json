@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
@@ -7,6 +6,8 @@
     },
     "checkJs": true,
     "module": "ESNext",
+    "allowSyntheticDefaultImports": true,
   },
   "include": ["src"],
+  "exclude": ["src/templates"],
 }
