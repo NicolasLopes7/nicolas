@@ -1,5 +1,6 @@
-import { execSync } from "child_process";
 import { writeFile } from "fs/promises";
+
+import { awaitExec } from "~/helpers/awaitExec";
 
 export const addLint = async () => {
   const deps = {
@@ -15,7 +16,7 @@ export const addLint = async () => {
     prettier: "^3.2.4",
   };
 
-  execSync(`pnpm add ${Object.keys(deps).join(" ")} -D`);
+  await awaitExec(`pnpm add ${Object.keys(deps).join(" ")} -D`);
 
   const prettierConfigContent = `
   const config = {
