@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { execSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { argv, chdir } from "node:process";
