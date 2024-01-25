@@ -41,7 +41,7 @@ const runStep = async (step: StepOptions) => {
 };
 
 const main = async () => {
-  const { name } = await runCli();
+  const { name, withLint } = await runCli();
   const fullPath = path.join(process.cwd(), name);
 
   console.log(
@@ -97,13 +97,16 @@ const main = async () => {
     },
   });
 
+  if (withLint) {
+    await runStep({
+      description: "Setting up linting...",
+      exec: addLint,
+    });
+  }
+
   console.log(
     `${nicolau} Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
   );
-
-  if (args.includes("--with-lint")) {
-    await addLint();
-  }
 };
 
 main().catch((err) => {
