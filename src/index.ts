@@ -25,7 +25,7 @@ const main = async () => {
 
   execSync("git init");
   execSync("pnpm init");
-  execSync(`pnpm i ${deps} -D`);
+  execSync(`pnpm i ${deps.join(" ")} -D`);
   execSync("pnpm tsc --init");
   await mkdir(path.join(fullPath, "src"));
   await writeFile(path.join(fullPath, "src", "index.ts"), "");
