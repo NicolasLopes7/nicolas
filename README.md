@@ -1,6 +1,6 @@
 # Nicolas - The TypeScript Project Wizard 🚀
 
-![Nicolas Logo](https://placekitten.com/200/200)
+![image](https://github.com/NicolasLopes7/nicolas/assets/57234795/dc62a117-bc1a-427b-b8b3-4bf2f1c1974f)
 
 Nicolas is your friendly neighborhood TypeScript project wizard! 🧙‍♂️ With just a few commands, Nicolas will conjure up a magical TypeScript project for you to test things out.
 
