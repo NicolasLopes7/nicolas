@@ -28,22 +28,8 @@ Nicolas will guide you through a magical journey with prompts:
 
 Example:
 
-```bash
-❯ npx nicolas@latest one-more-repo
-? Do you wish to include linting? Yes
-? Which package manager do you want to use? pnpm
-Creating project one-more-repo at ./one-more-repo
-✔ Initializing git repository...
-✔ Initializing pnpm...
-✔ Installing dependencies...
-✔ Initializing tsconfig...
-✔ Creating src/index.ts...
-✔ Creating package.json
-✔ Setting up linting...
+<img width="522" alt="Screenshot 2024-01-26 at 13 19 32" src="https://github.com/NicolasLopes7/nicolas/assets/57234795/ca4cbc66-3b00-4519-89b0-94f7d5344ae8">
 
-🎉 Everything is ready! Run cd one-more-repo to start!
-
-```
 
 ## Advanced Usage
 
