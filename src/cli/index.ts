@@ -9,27 +9,22 @@ import {
 import {
   promptPackageManager,
   promptProjectName,
-  promptRemoveFolderAfterFinish,
   promptWithLint,
 } from "./prompts";
 
 interface CliOutput {
   name: string;
   withLint: boolean;
-  removeFolderAfterFinish: boolean;
   packageManager: "pnpm" | "yarn" | "npm";
 }
 
 const defaultOptions: CliOutput = {
   name: "nicolas",
   withLint: false,
-  removeFolderAfterFinish: false,
   packageManager: "pnpm",
 };
 
 export const runCli = async (): Promise<CliOutput> => {
-  const isRunningDevScript = process.env.npm_lifecycle_event === "dev";
-
   const program = new Command()
     .name("nicolas")
     .argument("[name]", "name of the project")
@@ -39,9 +34,6 @@ export const runCli = async (): Promise<CliOutput> => {
     .option("--yarn", "use yarn as package manager")
     .option("--npm", "use npm as package manager");
 
-  if (isRunningDevScript) {
-    program.option("--remove", "remove folder after finish");
-  }
   program.parse(process.argv);
 
   const output = { ...defaultOptions };
@@ -50,7 +42,6 @@ export const runCli = async (): Promise<CliOutput> => {
   const options = program.opts<{
     withLint?: boolean;
     noLint?: boolean;
-    remove?: boolean;
     pnpm?: boolean;
     yarn?: boolean;
     npm?: boolean;
@@ -90,14 +81,6 @@ export const runCli = async (): Promise<CliOutput> => {
     output.packageManager = packageManagerFromCommand;
   } else {
     output.packageManager = await promptPackageManager();
-  }
-
-  if (isRunningDevScript && !options.remove) {
-    const removeFolderAfterFinish = await promptRemoveFolderAfterFinish();
-
-    if (removeFolderAfterFinish) {
-      output.removeFolderAfterFinish = true;
-    }
   }
 
   return output;

@@ -8,7 +8,7 @@ import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
 import { runStep } from "./cli/step";
-import { asyncExec, getFullPath, packageManagerCommands } from "./helpers";
+import { getFullPath, packageManagerCommands } from "./helpers";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -18,8 +18,7 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
 
 const main = async () => {
   const initialCwd = process.cwd();
-  const { name, withLint, removeFolderAfterFinish, packageManager } =
-    await runCli();
+  const { name, withLint, packageManager } = await runCli();
   const fullPath = getFullPath(name);
 
   const projectName = fullPath.split("/").at(-1);
@@ -107,15 +106,6 @@ const main = async () => {
   console.log(
     `\n🎉 Everything ready! ${wasProjectCreatedInCurrentFolder ? "" : runCdText}`
   );
-
-  if (removeFolderAfterFinish) {
-    await runStep({
-      description: "Removing folder...",
-      exec: async () => {
-        await asyncExec(`rm -rf ${fullPath}`);
-      },
-    });
-  }
 };
 
 main().catch((err) => {
