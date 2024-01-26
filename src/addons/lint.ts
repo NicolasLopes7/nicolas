@@ -1,8 +1,10 @@
 import { writeFile } from "fs/promises";
 
-import { asyncExec } from "~/helpers/asyncExec";
+import { asyncExec, packageManagerCommands } from "~/helpers";
 
-export const addLint = async () => {
+export const addLint = async (packageManager: "pnpm" | "yarn" | "npm") => {
+  const pkgManagerCommands = packageManagerCommands[packageManager];
+
   const deps = {
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-isaacscript": "^2.6.7",
@@ -16,7 +18,9 @@ export const addLint = async () => {
     prettier: "^3.2.4",
   };
 
-  await asyncExec(`pnpm add ${Object.keys(deps).join(" ")} -D`);
+  await asyncExec(
+    `${pkgManagerCommands.install} ${Object.keys(deps).join(" ")} -D`
+  );
 
   const prettierConfigContent = `
   const config = {

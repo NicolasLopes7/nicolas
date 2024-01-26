@@ -3,12 +3,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chdir } from "node:process";
 import path from "path";
 import chalk from "chalk";
-import ora from "ora";
 
 import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
-import { asyncExec } from "./helpers/asyncExec";
+import { runStep } from "./cli/step";
+import { asyncExec, getFullPath, packageManagerCommands } from "./helpers";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -16,59 +16,55 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
     unknown
   >;
 
-type StepOptions = {
-  description: string;
-} & (
-  | {
-      exec: () => Promise<void>;
-    }
-  | {
-      command: string;
-    }
-);
-
-const nicolau = chalk.blue("[Nicolau]");
-
-const runStep = async (step: StepOptions) => {
-  const spinner = ora(step.description).start();
-
-  if ("command" in step) {
-    await asyncExec(step.command);
-  } else {
-    await step.exec();
-  }
-
-  spinner.succeed();
-};
-
 const main = async () => {
-  const { name, withLint } = await runCli();
-  const fullPath = path.join(process.cwd(), name);
+  const initialCwd = process.cwd();
+  const { name, withLint, removeFolderAfterFinish, packageManager } =
+    await runCli();
+  const fullPath = getFullPath(name);
+
+  const projectName = fullPath.split("/").at(-1);
+  const relativePath = path.relative(process.cwd(), fullPath);
 
   console.log(
-    `Creating project ${chalk.blue(name)} at ${chalk.blue("./" + name)}...`
+    `Creating project ${chalk.blue(projectName)} at ./${relativePath}`
   );
 
-  await mkdir(fullPath);
+  await mkdir(fullPath, { recursive: true });
   chdir(fullPath);
+
+  const pkgManagerCommands = packageManagerCommands[packageManager];
 
   await runStep({
     command: "git init",
     description: "Initializing git repository...",
   });
 
-  await runStep({
-    command: "pnpm init",
-    description: "Initializing pnpm...",
-  });
+  try {
+    await runStep({
+      command: pkgManagerCommands.init,
+      description: `Initializing ${packageManager}...`,
+    });
+  } catch (err) {
+    if ("code" in err) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (err.code === 127) {
+        console.error(
+          chalk.red(
+            `Package manager ${packageManager} not found. Please install it and try again.`
+          )
+        );
+        process.exit(1);
+      }
+    }
+  }
 
   await runStep({
-    command: `pnpm i ${deps.join(" ")} -D`,
+    command: `${pkgManagerCommands.install} ${deps.join(" ")} -D`,
     description: "Installing dependencies...",
   });
 
   await runStep({
-    command: `pnpm tsc --init`,
+    command: `${pkgManagerCommands.run} tsc --init`,
     description: "Initializing tsconfig...",
   });
 
@@ -101,13 +97,25 @@ const main = async () => {
   if (withLint) {
     await runStep({
       description: "Setting up linting...",
-      exec: addLint,
+      exec: async () => addLint(packageManager),
     });
   }
 
+  const runCdText = `Run ${chalk.blue(`cd ${relativePath}`)} to start!`;
+  const wasProjectCreatedInCurrentFolder = fullPath === initialCwd;
+
   console.log(
-    `\n🎉 Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
+    `\n🎉 Everything ready! ${wasProjectCreatedInCurrentFolder ? "" : runCdText}`
   );
+
+  if (removeFolderAfterFinish) {
+    await runStep({
+      description: "Removing folder...",
+      exec: async () => {
+        await asyncExec(`rm -rf ${fullPath}`);
+      },
+    });
+  }
 };
 
 main().catch((err) => {
