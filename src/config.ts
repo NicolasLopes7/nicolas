@@ -1,1 +1,1 @@
-export const deps = ["tsx", "typescript", "@types/node", "tsup"];
+export const baseDeps = ["tsx", "typescript", "@types/node", "tsup"];

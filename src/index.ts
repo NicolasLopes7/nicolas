@@ -5,7 +5,7 @@ import path from "path";
 import chalk from "chalk";
 
 import { addLint } from "~/addons/lint";
-import { deps } from "~/config";
+import { baseDeps } from "~/config";
 import { runCli } from "./cli";
 import { runStep } from "./cli/step";
 import { getFullPath, packageManagerCommands } from "./helpers";
@@ -58,7 +58,7 @@ const main = async () => {
   }
 
   await runStep({
-    command: `${pkgManagerCommands.install} ${deps.join(" ")} -D`,
+    command: `${pkgManagerCommands.install} ${baseDeps.join(" ")} -D`,
     description: "Installing dependencies...",
   });
 
