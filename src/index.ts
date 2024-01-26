@@ -27,8 +27,6 @@ type StepOptions = {
     }
 );
 
-const nicolau = chalk.blue("[Nicolau]");
-
 const runStep = async (step: StepOptions) => {
   const spinner = ora(step.description).start();
 
@@ -42,7 +40,7 @@ const runStep = async (step: StepOptions) => {
 };
 
 const main = async () => {
-  const { name, withLint } = await runCli();
+  const { name, withLint, removeFolderAfterFinish } = await runCli();
   const fullPath = path.join(process.cwd(), name);
 
   console.log(
@@ -108,6 +106,15 @@ const main = async () => {
   console.log(
     `\n🎉 Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
   );
+
+  if (removeFolderAfterFinish) {
+    await runStep({
+      description: "Removing folder...",
+      exec: async () => {
+        await asyncExec(`rm -rf ${fullPath}`);
+      },
+    });
+  }
 };
 
 main().catch((err) => {
