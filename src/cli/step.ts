@@ -16,10 +16,15 @@ type StepOptions = {
 export const runStep = async (step: StepOptions) => {
   const spinner = ora(step.description).start();
 
-  if ("command" in step) {
-    await asyncExec(step.command);
-  } else {
-    await step.exec();
+  try {
+    if ("command" in step) {
+      await asyncExec(step.command);
+    } else {
+      await step.exec();
+    }
+  } catch (err) {
+    spinner.fail();
+    throw err;
   }
 
   spinner.succeed();

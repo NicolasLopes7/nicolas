@@ -7,6 +7,7 @@ import {
   isProjectNameValid,
 } from "~/helpers";
 import {
+  promptPackageManager,
   promptProjectName,
   promptRemoveFolderAfterFinish,
   promptWithLint,
@@ -16,12 +17,14 @@ interface CliOutput {
   name: string;
   withLint: boolean;
   removeFolderAfterFinish: boolean;
+  packageManager: "pnpm" | "yarn" | "npm";
 }
 
 const defaultOptions: CliOutput = {
   name: "nicolas",
   withLint: false,
   removeFolderAfterFinish: false,
+  packageManager: "pnpm",
 };
 
 export const runCli = async (): Promise<CliOutput> => {
@@ -31,7 +34,10 @@ export const runCli = async (): Promise<CliOutput> => {
     .name("nicolas")
     .argument("[name]", "name of the project")
     .option("--with-lint", "add linting")
-    .option("--no-lint", "do not add linting");
+    .option("--no-lint", "do not add linting")
+    .option("--pnpm", "use pnpm as package manager")
+    .option("--yarn", "use yarn as package manager")
+    .option("--npm", "use npm as package manager");
 
   if (isRunningDevScript) {
     program.option("--remove", "remove folder after finish");
@@ -45,6 +51,9 @@ export const runCli = async (): Promise<CliOutput> => {
     withLint?: boolean;
     noLint?: boolean;
     remove?: boolean;
+    pnpm?: boolean;
+    yarn?: boolean;
+    npm?: boolean;
   }>();
 
   if (nameFromCommand) {
@@ -71,6 +80,16 @@ export const runCli = async (): Promise<CliOutput> => {
     output.withLint = true;
   } else if (!options.noLint) {
     output.withLint = await promptWithLint();
+  }
+
+  const packageManagerFromCommand = ["pnpm", "yarn", "npm"].find((pkg) =>
+    Object.keys(options).includes(pkg)
+  ) as "pnpm" | "yarn" | "npm";
+
+  if (packageManagerFromCommand) {
+    output.packageManager = packageManagerFromCommand;
+  } else {
+    output.packageManager = await promptPackageManager();
   }
 
   if (isRunningDevScript && !options.remove) {

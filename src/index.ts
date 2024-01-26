@@ -8,7 +8,7 @@ import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
 import { runStep } from "./cli/step";
-import { asyncExec, getFullPath } from "./helpers";
+import { asyncExec, getFullPath, packageManagerCommands } from "./helpers";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -18,7 +18,8 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
 
 const main = async () => {
   const initialCwd = process.cwd();
-  const { name, withLint, removeFolderAfterFinish } = await runCli();
+  const { name, withLint, removeFolderAfterFinish, packageManager } =
+    await runCli();
   const fullPath = getFullPath(name);
 
   const projectName = fullPath.split("/").at(-1);
@@ -31,23 +32,39 @@ const main = async () => {
   await mkdir(fullPath, { recursive: true });
   chdir(fullPath);
 
+  const pkgManagerCommands = packageManagerCommands[packageManager];
+
   await runStep({
     command: "git init",
     description: "Initializing git repository...",
   });
 
-  await runStep({
-    command: "pnpm init",
-    description: "Initializing pnpm...",
-  });
+  try {
+    await runStep({
+      command: pkgManagerCommands.init,
+      description: `Initializing ${packageManager}...`,
+    });
+  } catch (err) {
+    if ("code" in err) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (err.code === 127) {
+        console.error(
+          chalk.red(
+            `Package manager ${packageManager} not found. Please install it and try again.`
+          )
+        );
+        process.exit(1);
+      }
+    }
+  }
 
   await runStep({
-    command: `pnpm i ${deps.join(" ")} -D`,
+    command: `${pkgManagerCommands.install} ${deps.join(" ")} -D`,
     description: "Installing dependencies...",
   });
 
   await runStep({
-    command: `pnpm tsc --init`,
+    command: `${pkgManagerCommands.run} tsc --init`,
     description: "Initializing tsconfig...",
   });
 
@@ -80,7 +97,7 @@ const main = async () => {
   if (withLint) {
     await runStep({
       description: "Setting up linting...",
-      exec: addLint,
+      exec: async () => addLint(packageManager),
     });
   }
 

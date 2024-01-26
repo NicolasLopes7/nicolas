@@ -45,3 +45,19 @@ export const promptRemoveFolderAfterFinish = async () => {
 
   return removeFolderAfterFinish;
 };
+
+export const promptPackageManager = async () => {
+  const { packageManager } = await inquirer.prompt<{
+    packageManager: "pnpm" | "yarn" | "npm";
+  }>([
+    {
+      name: "packageManager",
+      message: "Which package manager do you want to use?",
+      type: "list",
+      choices: ["pnpm", "yarn", "npm"],
+      default: "pnpm",
+    },
+  ]);
+
+  return packageManager;
+};

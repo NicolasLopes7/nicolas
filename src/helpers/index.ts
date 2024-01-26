@@ -55,3 +55,21 @@ export const isProjectNameValid = (name: string) => {
 
   return nameRegExp.test(projectName);
 };
+
+export const packageManagerCommands = {
+  pnpm: {
+    init: "pnpm init",
+    install: "pnpm install",
+    run: "pnpm",
+  },
+  yarn: {
+    init: "yarn init -y",
+    install: "yarn add",
+    run: "yarn",
+  },
+  npm: {
+    init: "npm init -y",
+    install: "npm install",
+    run: "npx",
+  },
+};
