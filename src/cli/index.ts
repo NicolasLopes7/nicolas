@@ -1,5 +1,7 @@
+import chalk from "chalk";
 import { Command } from "commander";
 
+import { checkIfFolderIsEmpty, getFullPath } from "~/helpers";
 import {
   promptProjectName,
   promptRemoveFolderAfterFinish,
@@ -45,6 +47,13 @@ export const runCli = async (): Promise<CliOutput> => {
     output.name = nameFromCommand;
   } else {
     output.name = await promptProjectName();
+  }
+
+  const fullPath = getFullPath(output.name);
+  const isEmpty = await checkIfFolderIsEmpty(fullPath);
+  if (!isEmpty) {
+    console.error(`❌ ${chalk.red("Folder is not empty!")}`);
+    process.exit(0);
   }
 
   if (options.withLint) {

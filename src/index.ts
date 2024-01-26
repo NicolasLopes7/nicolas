@@ -3,12 +3,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chdir } from "node:process";
 import path from "path";
 import chalk from "chalk";
-import ora from "ora";
 
 import { addLint } from "~/addons/lint";
 import { deps } from "~/config";
 import { runCli } from "./cli";
-import { asyncExec } from "./helpers/asyncExec";
+import { runStep } from "./cli/step";
+import { asyncExec, getFullPath } from "./helpers";
 
 const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(path, { encoding: "utf-8" })) as Record<
@@ -16,32 +16,9 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
     unknown
   >;
 
-type StepOptions = {
-  description: string;
-} & (
-  | {
-      exec: () => Promise<void>;
-    }
-  | {
-      command: string;
-    }
-);
-
-const runStep = async (step: StepOptions) => {
-  const spinner = ora(step.description).start();
-
-  if ("command" in step) {
-    await asyncExec(step.command);
-  } else {
-    await step.exec();
-  }
-
-  spinner.succeed();
-};
-
 const main = async () => {
   const { name, withLint, removeFolderAfterFinish } = await runCli();
-  const fullPath = path.join(process.cwd(), name);
+  const fullPath = getFullPath(name);
 
   console.log(
     `Creating project ${chalk.blue(name)} at ${chalk.blue("./" + name)}...`

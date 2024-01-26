@@ -1,6 +1,6 @@
 import { writeFile } from "fs/promises";
 
-import { asyncExec } from "~/helpers/asyncExec";
+import { asyncExec } from "~/helpers";
 
 export const addLint = async () => {
   const deps = {
