@@ -7,10 +7,13 @@ export const promptProjectName = async () => {
       name: "name",
       message: "What is the name of the project?",
       type: "input",
+      transformer: (input: string) => {
+        return input.toLowerCase().replace(/\s+/g, "-");
+      },
     },
   ]);
 
-  return name;
+  return name.toLowerCase().replace(/\s+/g, "-");
 };
 
 export const promptWithLint = async () => {

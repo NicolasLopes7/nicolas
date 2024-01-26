@@ -17,14 +17,18 @@ const loadJSON = async (path: string): Promise<Record<string, unknown>> =>
   >;
 
 const main = async () => {
+  const initialCwd = process.cwd();
   const { name, withLint, removeFolderAfterFinish } = await runCli();
   const fullPath = getFullPath(name);
 
+  const projectName = fullPath.split("/").at(-1);
+  const relativePath = path.relative(process.cwd(), fullPath);
+
   console.log(
-    `Creating project ${chalk.blue(name)} at ${chalk.blue("./" + name)}...`
+    `Creating project ${chalk.blue(projectName)} at ./${relativePath}`
   );
 
-  await mkdir(fullPath);
+  await mkdir(fullPath, { recursive: true });
   chdir(fullPath);
 
   await runStep({
@@ -80,8 +84,11 @@ const main = async () => {
     });
   }
 
+  const runCdText = `Run ${chalk.blue(`cd ${relativePath}`)} to start!`;
+  const wasProjectCreatedInCurrentFolder = fullPath === initialCwd;
+
   console.log(
-    `\n🎉 Everything ready! Run ${chalk.blue(`cd ${name}`)} to start!`
+    `\n🎉 Everything ready! ${wasProjectCreatedInCurrentFolder ? "" : runCdText}`
   );
 
   if (removeFolderAfterFinish) {

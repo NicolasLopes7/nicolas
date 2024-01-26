@@ -1,7 +1,11 @@
 import chalk from "chalk";
 import { Command } from "commander";
 
-import { checkIfFolderIsEmpty, getFullPath } from "~/helpers";
+import {
+  checkIfFolderIsEmpty,
+  getFullPath,
+  isProjectNameValid,
+} from "~/helpers";
 import {
   promptProjectName,
   promptRemoveFolderAfterFinish,
@@ -47,6 +51,13 @@ export const runCli = async (): Promise<CliOutput> => {
     output.name = nameFromCommand;
   } else {
     output.name = await promptProjectName();
+  }
+
+  if (!isProjectNameValid(output.name)) {
+    console.error(
+      `❌ ${chalk.red("Invalid project name! It should contains only letters, numbers, dashes and underscores.")}`
+    );
+    process.exit(0);
   }
 
   const fullPath = getFullPath(output.name);

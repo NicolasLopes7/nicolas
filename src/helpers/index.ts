@@ -24,5 +24,34 @@ export const checkIfFolderIsEmpty = async (path: string) => {
 };
 
 export const getFullPath = (name: string) => {
+  if (name === ".") return process.cwd();
+
   return path.join(process.cwd(), name);
+};
+
+export const removeTrailingSlash = (str: string) => {
+  if (str.length < 2) {
+    return str;
+  }
+
+  if (str.endsWith("/")) {
+    return str.slice(0, -1);
+  }
+
+  return str;
+};
+
+const nameRegExp = /^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+
+export const isProjectNameValid = (name: string) => {
+  const withoutTrailingSlash = removeTrailingSlash(name);
+  const pathSegments = withoutTrailingSlash.split("/");
+
+  const projectName = pathSegments.at(-1);
+
+  if ([".", ""].includes(projectName)) {
+    return true;
+  }
+
+  return nameRegExp.test(projectName);
 };
