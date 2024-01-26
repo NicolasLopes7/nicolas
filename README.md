@@ -21,6 +21,7 @@ npx nicolas
 Nicolas will guide you through a magical journey with prompts:
 
 - 🪄 **Do you wish to include linting?**
+
   - Answer: Yes/No
 
 - 🪄 **Which package manager do you want to use?**
@@ -34,7 +35,7 @@ Example:
 ## Advanced Usage
 
 ```bash
-nicolas [name] [--with-lint] [--pnpm|--yarn|--npm] [--remove]
+nicolas [name] [--with-lint] [--pnpm|--yarn|--npm]
 ```
 
 ### Options
@@ -45,7 +46,6 @@ nicolas [name] [--with-lint] [--pnpm|--yarn|--npm] [--remove]
 - `--pnpm`: Use pnpm as the package manager.
 - `--yarn`: Use yarn as the package manager.
 - `--npm`: Use npm as the package manager.
-- `--remove`: Remove the project folder after the script finishes (for developers in a hurry).
 
 ## Examples
 
@@ -55,9 +55,6 @@ nicolas awesome-ts-app --with-lint --pnpm
 
 # Create a project named "cool-project" without linting using yarn
 nicolas cool-project --no-lint --yarn
-
-# Create a project named "quick-test" and remove the folder after finishing
-nicolas quick-test --remove
 ```
 
 ---

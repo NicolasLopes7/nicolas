@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import inquirer from "inquirer";
 
 export const promptProjectName = async () => {
@@ -27,23 +26,6 @@ export const promptWithLint = async () => {
   ]);
 
   return withLint;
-};
-
-export const promptRemoveFolderAfterFinish = async () => {
-  const { removeFolderAfterFinish } = await inquirer.prompt<{
-    removeFolderAfterFinish: boolean;
-  }>([
-    {
-      name: "removeFolderAfterFinish",
-      message: chalk.yellow(
-        "[DEV] Do you wish to remove the folder after the script runs?"
-      ),
-      type: "confirm",
-      default: false,
-    },
-  ]);
-
-  return removeFolderAfterFinish;
 };
 
 export const promptPackageManager = async () => {
