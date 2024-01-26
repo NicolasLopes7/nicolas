@@ -1,7 +1,9 @@
-import * as inquirer from "@inquirer/prompts";
+import confirm from "@inquirer/confirm";
+import input from "@inquirer/input";
+import select from "@inquirer/select";
 
 export const promptProjectName = async () => {
-  const name = await inquirer.input({
+  const name = await input({
     message: "What is the name of the project?",
     transformer: (input: string) => {
       return input.toLowerCase().replace(/\s+/g, "-");
@@ -12,7 +14,7 @@ export const promptProjectName = async () => {
 };
 
 export const promptWithLint = async () => {
-  const withLint = await inquirer.confirm({
+  const withLint = await confirm({
     message: "Do you wish to include linting?",
     default: true,
   });
@@ -21,9 +23,23 @@ export const promptWithLint = async () => {
 };
 
 export const promptPackageManager = async () => {
-  const packageManager = await inquirer.input({
+  const packageManager = await select({
     message: "Which package manager do you want to use?",
     default: "pnpm",
+    choices: [
+      {
+        name: "pnpm",
+        value: "pnpm",
+      },
+      {
+        name: "yarn",
+        value: "yarn",
+      },
+      {
+        name: "npm",
+        value: "npm",
+      },
+    ],
   });
 
   return packageManager;
