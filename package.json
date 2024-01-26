@@ -18,8 +18,7 @@
     ],
     "minify": false,
     "target": "esnext",
-    "outDir": "dist",
-    "bundle": true
+    "outDir": "dist"
   },
   "scripts": {
     "dev": "tsx ./src/index.ts",
