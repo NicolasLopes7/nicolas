@@ -15,7 +15,7 @@ interface CliOutput {
 const defaultOptions: CliOutput = {
   name: "nicolas",
   withLint: false,
-  removeFolderAfterFinish: true,
+  removeFolderAfterFinish: false,
 };
 
 export const runCli = async (): Promise<CliOutput> => {
