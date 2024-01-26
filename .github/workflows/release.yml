@@ -6,6 +6,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -25,9 +29,9 @@ jobs:
       - name: "Get next version"
         id: version
         run: |
-          DEFAULT_VERSION=1.0.0
+          DEFAULT_VERSION=1.0.14
 
-          LATEST_TAG=$(pnpm version | awk -F"[:,']" '/nicolas/ {print $3}' || echo $DEFAULT_VERSION)
+          LATEST_TAG=$(git describe --tags --abbrev=0 || echo $DEFAULT_VERSION)
           echo "Current version ${LATEST_TAG}"
 
           NEXT_VERSION=$(echo ${LATEST_TAG} | awk -F. -v OFS=. '{$NF += 1 ; print}')
@@ -36,7 +40,25 @@ jobs:
           echo "value=${NEXT_VERSION}" >> $GITHUB_OUTPUT
       - name: Update version
         run: pnpm version ${{ steps.version.outputs.value }}
+
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.version.outputs.value }}',
+              sha: context.sha
+            })
       - run: pnpm build
       - run: pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.value }}
+          release_name: Release ${{ steps.version.outputs.value }}
