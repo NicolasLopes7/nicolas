@@ -83,6 +83,26 @@ export const addLint = async (packageManager: "pnpm" | "yarn" | "npm") => {
     
     module.exports = config;`;
 
+    const gitignoreConfigContent =  `
+    node_modules
+    .log
+   
+    # local env files
+    .env.local
+    .env
+
+    # testing
+    /coverage
+
+    # production
+    dist
+
+    # misc
+    .DS_Store
+    *.pem
+    `
+
+  await writeFile('.gitignore', gitignoreConfigContent)
   await writeFile("prettier.config.mjs", prettierConfigContent);
   await writeFile(".eslintrc.cjs", eslintConfigContent);
 };
