@@ -83,8 +83,7 @@ export const addLint = async (packageManager: "pnpm" | "yarn" | "npm") => {
     
     module.exports = config;`;
 
-    const gitignoreConfigContent =  `
-    node_modules
+    const gitignoreConfigContent = `node_modules
     .log
    
     # local env files
@@ -99,8 +98,7 @@ export const addLint = async (packageManager: "pnpm" | "yarn" | "npm") => {
 
     # misc
     .DS_Store
-    *.pem
-    `
+    *.pem`;
 
   await writeFile('.gitignore', gitignoreConfigContent)
   await writeFile("prettier.config.mjs", prettierConfigContent);
